@@ -1,0 +1,33 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "labvault"
+version = "0.1.0"
+description = "A local-first, zero-cost experiment management platform for ML researchers."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+    { name = "LabVault Team", email = "team@labvault.local" }
+]
+dependencies = [
+    "click>=8.1",
+    "rich>=13.0",
+    "fastapi>=0.100",
+    "uvicorn[standard]>=0.23",
+    "pyyaml>=6.0",
+    "python-multipart>=0.0.6",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "httpx",
+    "ruff",
+    "mypy",
+]
+
+[project.scripts]
+labvault = "labvault.cli.main:cli"
