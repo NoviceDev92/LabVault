@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from labvault.core.vault import Vault
-from labvault.web.routes import projects, experiments, runs, artifacts, search, compare, export
+from labvault.web.routes import projects, experiments, runs, artifacts, search, compare, export, stats
 
 
 def create_app(vault_path: str | Path | None = None) -> FastAPI:
@@ -40,14 +40,15 @@ def create_app(vault_path: str | Path | None = None) -> FastAPI:
     app.include_router(search.router, prefix="/api", tags=["search"])
     app.include_router(compare.router, prefix="/api", tags=["compare"])
     app.include_router(export.router, prefix="/api", tags=["export"])
+    app.include_router(stats.router, prefix="/api", tags=["stats"])
+
+    @app.get("/api/health")
+    def health():
+        return {"status": "ok", "vault_path": str(vault.path)}
 
     # Mount static files for the frontend (Phase 5)
     static_dir = Path(__file__).parent / "static"
     if static_dir.exists():
         app.mount("/", StaticFiles(directory=str(static_dir), html=True), name="static")
-
-    @app.get("/api/health")
-    def health():
-        return {"status": "ok", "vault_path": str(vault.path)}
 
     return app

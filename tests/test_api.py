@@ -221,3 +221,38 @@ def test_export_run_zip(client):
     r = client.get(f"/api/export/run/{run_id}")
     assert r.status_code == 200
     assert r.headers["content-type"] == "application/zip"
+
+
+# --- Stats & Frontend Static Files ---
+
+def test_stats(client):
+    exp_id = _setup_project_and_experiment(client)
+    client.post(f"/api/experiments/{exp_id}/runs", json={})
+    r = client.get("/api/stats")
+    assert r.status_code == 200
+    data = r.json()
+    assert data["total_projects"] == 1
+    assert data["total_experiments"] == 1
+    assert data["total_runs"] == 1
+    assert "disk_usage_bytes" in data
+
+
+def test_static_index(client):
+    r = client.get("/")
+    assert r.status_code == 200
+    assert "LabVault" in r.text
+    assert "app-content" in r.text
+
+
+def test_static_assets(client):
+    r_css = client.get("/css/style.css")
+    assert r_css.status_code == 200
+    assert "--bg-base" in r_css.text
+
+    r_js = client.get("/js/app.js")
+    assert r_js.status_code == 200
+
+    r_svg = client.get("/assets/logo.svg")
+    assert r_svg.status_code == 200
+    assert "<svg" in r_svg.text
+

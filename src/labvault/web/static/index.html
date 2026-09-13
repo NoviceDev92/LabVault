@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="LabVault — Local-first, zero-cost ML experiment management, versioning, ablation and comparison platform.">
+  <title>LabVault — The Research Workstation</title>
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Highlight.js for Syntax Highlighting in Artifact Previews -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+
+  <!-- LabVault Stylesheet -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-left">
+      <a href="#/" class="nav-logo" id="brand-link">
+        <svg viewBox="0 0 48 48" width="26" height="26" fill="none">
+          <polygon points="24,4 42,14 24,24 6,14" fill="#6366F1" opacity="0.8" />
+          <polygon points="6,14 24,24 24,44 6,34" fill="#0F172A" stroke="#4F46E5" stroke-width="2" />
+          <polygon points="24,24 42,14 42,34 24,44" fill="#1E293B" stroke="#6366F1" stroke-width="2" />
+          <circle cx="24" cy="24" r="4" fill="#22D3EE" />
+        </svg>
+        <span>LabVault</span>
+      </a>
+
+      <!-- Breadcrumbs Navigation -->
+      <nav class="breadcrumbs" id="nav-breadcrumbs" aria-label="Breadcrumb">
+        <span class="breadcrumb-item active">Vault</span>
+      </nav>
+    </div>
+
+    <div class="nav-center">
+      <div class="search-bar-wrap">
+        <span class="search-icon-nav">⌕</span>
+        <input type="text" id="global-search-input" placeholder="Search runs, metrics, tags... (e.g. f1 > 0.9)" autocomplete="off" />
+        <span class="search-shortcut-badge">Ctrl+K</span>
+      </div>
+    </div>
+
+    <div class="nav-right">
+      <div class="vault-status-pill" id="vault-status-pill">
+        <span class="status-dot-pulse"></span>
+        <span id="vault-stats-text" class="mono">Loading...</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Dynamic Main Content (Rendered by SPA Router) -->
+  <main id="app-content" class="main-content" role="main">
+    <!-- View will be injected here -->
+  </main>
+
+  <!-- Floating Multi-Run Comparison & Export Dock -->
+  <div class="floating-dock" id="floating-dock">
+    <div class="dock-selection-text">
+      <span class="dock-badge" id="dock-count">0</span>
+      <span>Runs Selected</span>
+    </div>
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <button class="btn btn-primary btn-sm" id="dock-compare-btn">
+        <span>⚡ Compare Ablation</span>
+      </button>
+      <button class="btn btn-secondary btn-sm" id="dock-export-btn">
+        <span>⭳ Export LaTeX Table</span>
+      </button>
+      <button class="btn btn-ghost btn-sm" id="dock-clear-btn">Clear</button>
+    </div>
+  </div>
+
+  <!-- Artifact Inspector Drawer (Slide-out Right Panel) -->
+  <div class="drawer-backdrop" id="drawer-backdrop"></div>
+  <aside class="inspector-drawer" id="inspector-drawer" aria-label="Artifact Inspector">
+    <div class="drawer-header">
+      <div class="drawer-title" id="drawer-title">
+        <span>🔍 Artifact Inspector</span>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="drawer-close-btn" style="font-size: 16px;">✕</button>
+    </div>
+    <div class="drawer-body" id="drawer-body">
+      <!-- Drawer content injected dynamically -->
+    </div>
+  </aside>
+
+  <!-- Global Modal Dialog Container -->
+  <div class="modal-backdrop" id="modal-container">
+    <!-- Modals injected dynamically -->
+  </div>
+
+  <!-- Global Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Core JavaScript Module -->
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>
