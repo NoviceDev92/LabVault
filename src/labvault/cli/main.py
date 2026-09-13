@@ -36,5 +36,17 @@ cli.add_command(search_cmd)
 cli.add_command(trash_group)
 cli.add_command(stats_cmd)
 
+@cli.command("ui")
+@click.option("--port", default=5555, help="Port to serve the web UI on.")
+@click.option("--vault", "vault_path", default=".", help="Path to vault root.")
+def ui(port: int, vault_path: str):
+    """Launch the web dashboard."""
+    import uvicorn
+    import os
+    os.environ["LABVAULT_PATH"] = str(vault_path)
+    console.print(f"[bold green]Starting LabVault UI[/] at [cyan]http://localhost:{port}[/]")
+    console.print(f"[dim]API docs at http://localhost:{port}/docs[/]")
+    uvicorn.run("labvault.web.app:create_app", host="0.0.0.0", port=port, factory=True)
+
 if __name__ == "__main__":
     cli()
