@@ -4,7 +4,7 @@ from rich.console import Console
 from labvault.core.vault import Vault
 from labvault.core.project import get_project
 from labvault.core.experiment import get_experiment
-from labvault.core.run import create_run, get_run
+from labvault.core.run import create_run, get_run, seal_run
 from labvault.core.metrics import add_metrics
 from labvault.core.tags import add_tags
 
@@ -111,3 +111,66 @@ def run_log(project_slug: str, exp_slug: str, version: int,
         console.print(f"[bold green]Logged to:[/] v{version}")
     else:
         console.print("[dim]Nothing to log. Use --metric or --tag.[/]")
+
+
+@run_group.command("seal")
+@click.argument("project_slug")
+@click.argument("exp_slug")
+@click.argument("version", type=int)
+@click.option("--vault", "vault_path", default=".", help="Path to vault root.")
+def run_seal(project_slug: str, exp_slug: str, version: int, vault_path: str):
+    """Seal a run (make it immutable)."""
+    vault = Vault.init(vault_path)
+    project = get_project(vault, project_slug)
+    if not project:
+        console.print(f"[bold red]Error:[/] Project '{project_slug}' not found.")
+        raise SystemExit(1)
+
+    experiment = get_experiment(vault, project, exp_slug)
+    if not experiment:
+        console.print(f"[bold red]Error:[/] Experiment '{exp_slug}' not found.")
+        raise SystemExit(1)
+
+    run = get_run(vault, experiment, version)
+    if not run:
+        console.print(f"[bold red]Error:[/] Run v{version} not found.")
+        raise SystemExit(1)
+
+    try:
+        seal_run(vault, experiment, run)
+        console.print(f"[bold green]Sealed:[/] v{version} is now immutable.")
+    except ValueError as e:
+        console.print(f"[bold red]Error:[/] {e}")
+        raise SystemExit(1)
+
+
+@run_group.command("delete")
+@click.argument("project_slug")
+@click.argument("exp_slug")
+@click.argument("version", type=int)
+@click.option("--vault", "vault_path", default=".", help="Path to vault root.")
+def run_delete(project_slug: str, exp_slug: str, version: int, vault_path: str):
+    """Soft-delete a run (move to trash)."""
+    vault = Vault.init(vault_path)
+    project = get_project(vault, project_slug)
+    if not project:
+        console.print(f"[bold red]Error:[/] Project '{project_slug}' not found.")
+        raise SystemExit(1)
+
+    experiment = get_experiment(vault, project, exp_slug)
+    if not experiment:
+        console.print(f"[bold red]Error:[/] Experiment '{exp_slug}' not found.")
+        raise SystemExit(1)
+
+    run = get_run(vault, experiment, version)
+    if not run:
+        console.print(f"[bold red]Error:[/] Run v{version} not found.")
+        raise SystemExit(1)
+
+    from labvault.core.trash import soft_delete_run
+    try:
+        soft_delete_run(vault, run.id)
+        console.print(f"[bold yellow]Trashed:[/] v{version}. Use 'labvault trash ls' to see trashed items.")
+    except ValueError as e:
+        console.print(f"[bold red]Error:[/] {e}")
+        raise SystemExit(1)

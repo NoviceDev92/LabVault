@@ -7,6 +7,9 @@ from labvault.cli.experiment import experiment_group
 from labvault.cli.run import run_group
 from labvault.cli.artifact import artifact_group
 from labvault.cli.show import show
+from labvault.cli.search import search_cmd
+from labvault.cli.trash import trash_group
+from labvault.cli.stats import stats_cmd
 
 console = Console()
 
@@ -29,6 +32,9 @@ cli.add_command(experiment_group)
 cli.add_command(run_group)
 cli.add_command(artifact_group)
 cli.add_command(show)
+cli.add_command(search_cmd)
+cli.add_command(trash_group)
+cli.add_command(stats_cmd)
 
 if __name__ == "__main__":
     cli()

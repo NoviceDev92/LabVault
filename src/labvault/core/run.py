@@ -70,6 +70,10 @@ def create_run(
     # Generate _meta.json
     generate_meta_json(vault, experiment, run)
     
+    # Update search index
+    from labvault.core.search import update_search_index
+    update_search_index(vault, run.id)
+    
     return run
 
 def get_run(vault: Vault, experiment: Experiment, version: int) -> Optional[Run]:
@@ -148,3 +152,26 @@ def generate_meta_json(vault: Vault, experiment: Experiment, run: Run) -> None:
     meta_path = run_dir / "_meta.json"
     with open(meta_path, "w") as f:
         json.dump(meta, f, indent=2)
+
+
+def seal_run(vault: Vault, experiment: Experiment, run: Run) -> Run:
+    """Mark a run as sealed (immutable). No further modifications allowed."""
+    if run.status == "sealed":
+        raise ValueError(f"Run v{run.version} is already sealed.")
+
+    from labvault.utils.timestamps import get_current_timestamp
+    sealed_at = get_current_timestamp()
+
+    with vault.get_connection() as conn:
+        conn.execute(
+            "UPDATE runs SET status = 'sealed', sealed_at = ? WHERE id = ?",
+            (sealed_at, run.id),
+        )
+
+    run.status = "sealed"
+    run.sealed_at = sealed_at
+
+    # Regenerate _meta.json with updated status
+    generate_meta_json(vault, experiment, run)
+
+    return run

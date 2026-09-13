@@ -68,9 +68,24 @@ CREATE TABLE IF NOT EXISTS artifacts (
     created_at   DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Full-text search index
+-- Full-text search index (run_id stored as text for FTS5 compatibility)
 CREATE VIRTUAL TABLE IF NOT EXISTS search_index USING fts5(
-    project_name, experiment_name, run_notes, tag_values, metric_keys
+    run_id, project_name, experiment_name, run_notes, tag_values, metric_keys
+);
+
+-- Deleted runs (soft delete / trash)
+CREATE TABLE IF NOT EXISTS deleted_runs (
+    id              INTEGER PRIMARY KEY,
+    original_run_id INTEGER NOT NULL,
+    experiment_id   INTEGER NOT NULL,
+    project_id      INTEGER NOT NULL,
+    version         INTEGER NOT NULL,
+    status          TEXT,
+    notes           TEXT,
+    created_at      DATETIME,
+    deleted_at      DATETIME DEFAULT CURRENT_TIMESTAMP,
+    original_path   TEXT NOT NULL,          -- filesystem path before deletion
+    trash_path      TEXT NOT NULL           -- filesystem path in .trash/
 );
 """
 
