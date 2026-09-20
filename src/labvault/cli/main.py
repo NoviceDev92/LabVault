@@ -10,6 +10,8 @@ from labvault.cli.show import show
 from labvault.cli.search import search_cmd
 from labvault.cli.trash import trash_group
 from labvault.cli.stats import stats_cmd
+from labvault.cli.export import export_table_cmd, pack_cmd
+from labvault.cli.diff import diff_cmd
 
 console = Console()
 
@@ -35,6 +37,9 @@ cli.add_command(show)
 cli.add_command(search_cmd)
 cli.add_command(trash_group)
 cli.add_command(stats_cmd)
+cli.add_command(export_table_cmd)
+cli.add_command(pack_cmd)
+cli.add_command(diff_cmd)
 
 @cli.command("ui")
 @click.option("--port", default=5555, help="Port to serve the web UI on.")

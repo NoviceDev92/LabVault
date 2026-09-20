@@ -117,3 +117,20 @@ class CompareResponse(BaseModel):
     metric_deltas: list[MetricDeltaResponse]
     tag_diffs: list[TagDiffResponse]
     artifact_diffs: list[ArtifactDiffResponse]
+
+
+# --- File Diff ---
+
+class FileDiffRequest(BaseModel):
+    run_ids: list[int]
+    filename: str
+
+
+class FileDiffResponse(BaseModel):
+    filename: str
+    diff_type: str  # "text", "image", "binary"
+    diff_lines: list[str] = []
+    images: dict[int, str] = {}  # run_id -> base64 data URI
+    sizes: dict[int, int] = {}
+    hashes: dict[int, str] = {}
+

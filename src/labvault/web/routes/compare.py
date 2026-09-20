@@ -2,8 +2,12 @@
 
 from fastapi import APIRouter, Request, HTTPException
 
-from labvault.core.comparison import compare_runs
-from labvault.web.schemas import CompareRequest, CompareResponse, MetricDeltaResponse, TagDiffResponse, ArtifactDiffResponse
+from labvault.core.comparison import compare_runs, compare_file_contents
+from labvault.web.schemas import (
+    CompareRequest, CompareResponse, MetricDeltaResponse,
+    TagDiffResponse, ArtifactDiffResponse,
+    FileDiffRequest, FileDiffResponse,
+)
 
 router = APIRouter()
 
@@ -49,4 +53,23 @@ def api_compare(body: CompareRequest, request: Request):
             )
             for ad in result.artifact_diffs
         ],
+    )
+
+
+@router.post("/compare/files", response_model=FileDiffResponse)
+def api_compare_files(body: FileDiffRequest, request: Request):
+    """Compare a single file's content across multiple runs."""
+    vault = _get_vault(request)
+    try:
+        result = compare_file_contents(vault, body.run_ids, body.filename)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    return FileDiffResponse(
+        filename=result.filename,
+        diff_type=result.diff_type,
+        diff_lines=result.diff_lines,
+        images={str(k): v for k, v in result.images.items()},
+        sizes={str(k): v for k, v in result.sizes.items()},
+        hashes={str(k): v for k, v in result.hashes.items()},
     )

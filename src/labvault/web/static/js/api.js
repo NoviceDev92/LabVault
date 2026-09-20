@@ -117,6 +117,11 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ run_ids: runIds }),
     }),
+  compareFiles: (runIds, filename) =>
+    request('/compare/files', {
+      method: 'POST',
+      body: JSON.stringify({ run_ids: runIds, filename }),
+    }),
 
   // Export
   exportTableUrl: (expId, format = 'csv') => 
