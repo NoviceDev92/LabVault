@@ -110,3 +110,44 @@ def list_artifacts(vault: Vault, run: Run) -> list[Artifact]:
         id=row[0], run_id=row[1], filename=row[2], artifact_type=row[3], 
         size_bytes=row[4], content_hash=row[5], rel_path=row[6], created_at=row[7]
     ) for row in rows]
+
+
+def extract_metrics_from_file(filepath: Path | str) -> dict[str, float]:
+    """Auto-extract numeric key-value pairs from .json or .csv files.
+
+    For JSON: scans top-level keys for numeric values.
+    For CSV: reads the first data row and extracts numeric columns.
+    Returns a dict of metric_key -> float_value.
+    """
+    import csv as csv_mod
+    import json as json_mod
+
+    filepath = Path(filepath)
+    ext = filepath.suffix.lower()
+    metrics: dict[str, float] = {}
+
+    try:
+        if ext == ".json":
+            with open(filepath, "r", encoding="utf-8") as f:
+                data = json_mod.load(f)
+            if isinstance(data, dict):
+                for key, val in data.items():
+                    if isinstance(val, (int, float)) and not isinstance(val, bool):
+                        metrics[key] = float(val)
+
+        elif ext == ".csv":
+            with open(filepath, "r", encoding="utf-8") as f:
+                reader = csv_mod.DictReader(f)
+                for row in reader:
+                    for key, val in row.items():
+                        if key and val:
+                            try:
+                                metrics[key] = float(val)
+                            except (ValueError, TypeError):
+                                pass
+                    break  # Only first row
+    except Exception:
+        pass  # Silently return empty if file can't be parsed
+
+    return metrics
+

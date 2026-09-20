@@ -12,6 +12,9 @@ from labvault.cli.trash import trash_group
 from labvault.cli.stats import stats_cmd
 from labvault.cli.export import export_table_cmd, pack_cmd
 from labvault.cli.diff import diff_cmd
+from labvault.cli.config import config_cmd
+from labvault.cli.doctor import doctor_cmd
+from labvault.cli.watch import watch_cmd
 
 console = Console()
 
@@ -40,14 +43,23 @@ cli.add_command(stats_cmd)
 cli.add_command(export_table_cmd)
 cli.add_command(pack_cmd)
 cli.add_command(diff_cmd)
+cli.add_command(config_cmd)
+cli.add_command(doctor_cmd)
+cli.add_command(watch_cmd)
 
 @cli.command("ui")
-@click.option("--port", default=5555, help="Port to serve the web UI on.")
+@click.option("--port", default=None, type=int, help="Port to serve the web UI on.")
 @click.option("--vault", "vault_path", default=".", help="Path to vault root.")
-def ui(port: int, vault_path: str):
+def ui(port: int | None, vault_path: str):
     """Launch the web dashboard."""
     import uvicorn
     import os
+
+    # Read port from config if not provided
+    if port is None:
+        from labvault.core.config import get_config_value
+        port = get_config_value("ui.port") or 5555
+
     os.environ["LABVAULT_PATH"] = str(vault_path)
     console.print(f"[bold green]Starting LabVault UI[/] at [cyan]http://localhost:{port}[/]")
     console.print(f"[dim]API docs at http://localhost:{port}/docs[/]")
@@ -55,3 +67,4 @@ def ui(port: int, vault_path: str):
 
 if __name__ == "__main__":
     cli()
+

@@ -13,6 +13,31 @@ import { closeInspectorDrawer } from './components.js';
 
 const appContent = document.getElementById('app-content');
 
+// ─── Global Loading Overlay ───
+function getOrCreateLoader() {
+  let el = document.getElementById('global-loader');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'global-loader';
+    el.className = 'global-loader';
+    el.innerHTML = `
+      <div class="loader-spinner"></div>
+      <span class="mono" style="color: var(--text-muted); font-size: 12px; margin-top: 12px;">Loading...</span>
+    `;
+    document.body.appendChild(el);
+  }
+  return el;
+}
+
+window.setLoading = function(on) {
+  const loader = getOrCreateLoader();
+  if (on) {
+    loader.classList.add('visible');
+  } else {
+    loader.classList.remove('visible');
+  }
+};
+
 // Simple parse for query params from hash: #/route?key=val&key2=val2
 function parseHash(hash) {
   const clean = hash.replace(/^#\/?/, '');
@@ -37,27 +62,22 @@ async function router() {
   const hash = window.location.hash || '#/';
   const { path, query } = parseHash(hash);
 
+  window.setLoading(true);
+
   try {
     if (path.length === 0) {
-      // #/ (Home)
       await renderHome(appContent);
     } else if (path[0] === 'projects' && path[1]) {
-      // #/projects/:slug
       await renderProject(appContent, path[1]);
     } else if (path[0] === 'experiments' && path[1] && path[2]) {
-      // #/experiments/:projectSlug/:expSlug
       await renderExperiment(appContent, path[1], path[2]);
     } else if (path[0] === 'runs' && path[1]) {
-      // #/runs/:id
       await renderRun(appContent, parseInt(path[1], 10));
     } else if (path[0] === 'compare') {
-      // #/compare?ids=1,2
       await renderCompare(appContent, query);
     } else if (path[0] === 'search') {
-      // #/search?q=...
       await renderSearch(appContent, query);
     } else {
-      // Fallback
       await renderHome(appContent);
     }
   } catch (err) {
@@ -69,6 +89,8 @@ async function router() {
         <button class="btn btn-secondary" onclick="window.location.hash='#/'">Return to Vault</button>
       </div>
     `;
+  } finally {
+    window.setLoading(false);
   }
 }
 

@@ -6,7 +6,7 @@ from labvault.core.vault import Vault
 from labvault.core.project import get_project
 from labvault.core.experiment import get_experiment
 from labvault.core.run import get_run
-from labvault.core.artifact import add_artifact
+from labvault.core.artifact import add_artifact, extract_metrics_from_file
 
 console = Console()
 
@@ -21,9 +21,11 @@ def artifact_group():
 @click.argument("version", type=int)
 @click.argument("filepath", type=click.Path(exists=True))
 @click.option("--type", "artifact_type", default=None, help="Override auto-detected artifact type.")
+@click.option("--auto-metrics", is_flag=True, default=False, help="Auto-extract metrics from .json/.csv files.")
 @click.option("--vault", "vault_path", default=".", help="Path to vault root.")
 def artifact_add(project_slug: str, exp_slug: str, version: int,
-                 filepath: str, artifact_type: str | None, vault_path: str):
+                 filepath: str, artifact_type: str | None, auto_metrics: bool,
+                 vault_path: str):
     """Add a file artifact to a run."""
     vault = Vault.init(vault_path)
     project = get_project(vault, project_slug)
@@ -48,6 +50,20 @@ def artifact_add(project_slug: str, exp_slug: str, version: int,
             f"[bold green]Added artifact:[/] {art.filename} "
             f"[dim]({art.artifact_type}, {format_bytes(art.size_bytes)})[/]"
         )
+
+        # Auto-extract metrics if requested
+        if auto_metrics:
+            metrics = extract_metrics_from_file(Path(filepath))
+            if metrics:
+                from labvault.core.metrics import add_metrics
+                add_metrics(vault, run, metrics)
+                for k, v in metrics.items():
+                    console.print(f"  [cyan]auto-metric[/] {k} = {v}")
+                console.print(f"[bold green]Extracted {len(metrics)} metric(s)[/]")
+            else:
+                console.print("[dim]No extractable metrics found in this file.[/]")
+
     except FileNotFoundError as e:
         console.print(f"[bold red]Error:[/] {e}")
         raise SystemExit(1)
+

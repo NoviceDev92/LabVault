@@ -4,12 +4,25 @@ build-backend = "hatchling.build"
 
 [project]
 name = "labvault"
-version = "0.1.0"
+version = "1.0.0"
 description = "A local-first, zero-cost experiment management platform for ML researchers."
 readme = "README.md"
+license = "MIT"
 requires-python = ">=3.11"
 authors = [
-    { name = "LabVault Team", email = "team@labvault.local" }
+    { name = "NoviceDev92" }
+]
+keywords = ["machine-learning", "experiment-tracking", "research", "ablation", "MLOps"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Environment :: Web Environment",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 dependencies = [
     "click>=8.1",
@@ -18,6 +31,7 @@ dependencies = [
     "uvicorn[standard]>=0.23",
     "pyyaml>=6.0",
     "python-multipart>=0.0.6",
+    "watchdog>=3.0",
 ]
 
 [project.optional-dependencies]
@@ -29,5 +43,11 @@ dev = [
     "mypy",
 ]
 
+[project.urls]
+Homepage = "https://github.com/NoviceDev92/LabVault"
+Repository = "https://github.com/NoviceDev92/LabVault"
+Issues = "https://github.com/NoviceDev92/LabVault/issues"
+
 [project.scripts]
 labvault = "labvault.cli.main:cli"
+
